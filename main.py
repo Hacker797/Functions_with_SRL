@@ -3,26 +3,27 @@ class Locator:
     def __init__(self, srl: str):
 
         try:
-            method = srl.split('://', 1)
-            kind = method[1].split('/', 1)
+            self.__url = srl
+            self.__method = srl.split('://', 1)
+            self.__kind = self.__method[1].split('/', 1)
         except:
             raise ValueError
 
         def srl_valid():
             # check first
-            if not method[0].islower():
+            if not self.__method[0].islower():
                 raise ValueError
 
             # check second
-            if kind[0].startswith('.') and kind[0].endswith('.') and '.' not in kind[0]:
+            if self.__kind[0].startswith('.') and self.__kind[0].endswith('.') and '.' not in self.__kind[0]:
                 raise ValueError
-            if not kind[0].replace('.', '').isalnum():
+            if not self.__kind[0].replace('.', '').isalnum():
                 raise ValueError
 
             # check third
-            _list_kind = kind[1].split('/')
+            _list_kind = self.__kind[1].split('/')
             new_list = [x for x in _list_kind if x != '']
-            if len(new_list) != (kind[1].count('/') + 1):
+            if len(new_list) != (self.__kind[1].count('/') + 1):
                 raise ValueError
 
             return True
@@ -30,30 +31,47 @@ class Locator:
         if not srl_valid():
             raise ValueError
 
-        print('Ok')
-
     def srl(self) -> str:
-        pass
+        return self.__url
 
     def kind(self) -> str:
-        pass
+        return self.__method[0]
 
     def location(self) -> str:
-        pass
+        return self.__kind[0]
 
     def location_parts(self) -> list[str]:
-        pass
+        return self.__kind[0].split('.')
 
     def resource(self) -> str:
-        pass
+        return self.__kind[1]
 
     def resource_parts(self) -> list[str]:
-        pass
+        return self.__kind[1].split('/')
 
     def parent(self) -> 'Locator':
-        pass
+        __new_list = self.__kind[1].split('/')
+        __new_list = __new_list[:-1]
+        __str = '/'.join(__new_list)
+        __new_srl = self.__method[0] + '://' + self.__kind[0] + __str
+
+        return Locator(__new_srl)
 
     def within(self, resource_part: str) -> 'Locator':
-        pass
+        __new_list = '/' + self.__kind[1] + f'/{resource_part}'
+        __new_srl = self.__method[0]+'://' + self.__kind[0] + __new_list
 
-link = Locator('https://www.YouTube/video/share/Gkgprekghrps24332')
+        return Locator(__new_srl)
+
+link = Locator('https://www.YouTube/video/share/Gkgprekghrps24332/media/admin')
+
+# print(f"""srl: {link.srl()}
+# kind: {link.kind()}
+# location: {link.location()}
+# location_parts: {link.location_parts()}
+# resources: {link.resource()}
+# resources_parts: {link.resource_parts()}
+# parent: {link.parent()}
+# check 1: {link.parent().resource_parts()}
+# within: {link.within('index')}
+# check 2: {link.within('index').srl()}""")
